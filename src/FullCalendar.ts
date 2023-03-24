@@ -28,11 +28,10 @@ const FullCalendar = Vue.extend({
   },
 
   mounted() {
-    let internal = this.$options as FullCalendarInternal
-    internal.scopedSlotOptions = mapHash(this.$scopedSlots, wrapVDomGenerator) // needed for buildOptions
+    this.internal.scopedSlotOptions = mapHash(this.$scopedSlots, wrapVDomGenerator) // needed for buildOptions
 
     let calendar = new Calendar(this.$el as HTMLElement, this.buildOptions(this.options, this))
-    internal.calendar = calendar
+    this.internal.calendar = calendar
     calendar.render()
   },
 
@@ -55,16 +54,16 @@ const FullCalendar = Vue.extend({
 
 function initData() {
   return {
-    renderId: 0
+    renderId: 0,
+    internal: {} as FullCalendarInternal
   }
 }
 
 
-function buildOptions(this: { $options: any }, suppliedOptions: CalendarOptions, parent: Vue): CalendarOptions {
-  let internal = this.$options as FullCalendarInternal
+function buildOptions(this: { internal: FullCalendarInternal }, suppliedOptions: CalendarOptions, parent: Vue): CalendarOptions {
   suppliedOptions = suppliedOptions || {}
   return {
-    ...internal.scopedSlotOptions,
+    ...this.internal.scopedSlotOptions,
     ...suppliedOptions, // spread will pull out the values from the options getter functions
     plugins: (suppliedOptions.plugins || []).concat([
       createVueContentTypePlugin(parent)
@@ -73,9 +72,8 @@ function buildOptions(this: { $options: any }, suppliedOptions: CalendarOptions,
 }
 
 
-function getApi(this: { $options: any }) {
-  let internal = this.$options as FullCalendarInternal
-  return internal.calendar
+function getApi(this: { internal: FullCalendarInternal }) {
+  return this.internal.calendar
 }
 
 
